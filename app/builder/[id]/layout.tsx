@@ -3,5 +3,7 @@ export default function BuilderLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="min-h-screen flex flex-col bg-gray-50">{children}</div>;
+  return (
+    <div className="min-h-screen flex flex-col bg-[var(--paper)]">{children}</div>
+  );
 }
