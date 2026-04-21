@@ -2,8 +2,8 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Download, Printer } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
 import type { SF330Doc } from "@/lib/types";
@@ -446,6 +446,8 @@ export default function PreviewPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const autoprint = searchParams.get("autoprint") === "1";
   const { getDoc } = useStore();
   const [hydrated, setHydrated] = useState(false);
   const [doc, setDoc] = useState<SF330Doc | undefined>(undefined);
@@ -455,6 +457,13 @@ export default function PreviewPage({
     const d = getDoc(id);
     setDoc(d);
   }, [id, getDoc]);
+
+  useEffect(() => {
+    if (hydrated && doc && autoprint) {
+      const t = setTimeout(() => window.print(), 400);
+      return () => clearTimeout(t);
+    }
+  }, [hydrated, doc, autoprint]);
 
   if (!hydrated) {
     return (
@@ -485,20 +494,13 @@ export default function PreviewPage({
             Back to Builder
           </Button>
         </Link>
-        <Link href={`/export/${id}`}>
-          <Button size="sm">
-            <Download className="h-3.5 w-3.5 mr-1" />
-            Download PDF
-          </Button>
-        </Link>
         <Button
-          variant="ghost"
           size="sm"
           onClick={() => window.print()}
           className="ml-auto"
         >
           <Printer className="h-3.5 w-3.5 mr-1" />
-          Print
+          Print / Save as PDF
         </Button>
       </div>
 
